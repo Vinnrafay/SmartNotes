@@ -1,7 +1,7 @@
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
     Alert,
     KeyboardAvoidingView,
@@ -19,22 +19,24 @@ export default function WriteNoteScreen() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
-  useEffect(() => {
-    const ambilDataDraft = async () => {
-      try {
-        const dataTeks = await AsyncStorage.getItem("draft_catatan");
-        if (dataTeks !== null) {
-          const dataAsli = JSON.parse(dataTeks);
-          setTitle(dataAsli.title);
-          setContent(dataAsli.content);
-        }
-      } catch (error) {
-        Alert.alert("Error", "Gagal memuat catatan sebelumnya.");
-      }
-    };
-
-    ambilDataDraft();
-  }, []);
+  const getTodayDate = () => {
+    const dateObj = new Date();
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "Mei",
+      "Jun",
+      "Jul",
+      "Ags",
+      "Sep",
+      "Okt",
+      "Nov",
+      "Des",
+    ];
+    return `${dateObj.getDate()} ${months[dateObj.getMonth()]} ${dateObj.getFullYear()}`;
+  };
 
   const handleSave = async () => {
     if (!title.trim() && !content.trim()) {
@@ -43,15 +45,24 @@ export default function WriteNoteScreen() {
     }
 
     try {
-      const dataDraft = {
+      const newNote = {
+        id: Date.now().toString(),
         title: title,
         content: content,
+        date: getTodayDate(),
       };
 
-      const dataTeks = JSON.stringify(dataDraft);
-      await AsyncStorage.setItem("draft_catatan", dataTeks);
+      const existingNotes = await AsyncStorage.getItem("my_notes");
+      let notesArray = existingNotes !== null ? JSON.parse(existingNotes) : [];
 
-      Alert.alert("Sukses", "Catatan berhasil disimpan ke memori HP!");
+      notesArray.push(newNote);
+
+      await AsyncStorage.setItem("my_notes", JSON.stringify(notesArray));
+
+      Alert.alert("Sukses", "Catatan berhasil disimpan!");
+      setTitle("");
+      setContent("");
+      router.back();
     } catch (error) {
       Alert.alert("Error", "Gagal menyimpan catatan.");
     }
@@ -80,7 +91,7 @@ export default function WriteNoteScreen() {
           <View style={styles.pillContainer}>
             <View style={styles.pill}>
               <Feather name="calendar" size={14} color="#4285F4" />
-              <Text style={styles.pillText}>24 Mei 2024</Text>
+              <Text style={styles.pillText}>{getTodayDate()}</Text>
             </View>
             <TouchableOpacity style={styles.pill}>
               <Feather name="plus-circle" size={14} color="#4285F4" />

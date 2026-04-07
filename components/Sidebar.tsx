@@ -1,4 +1,5 @@
 import { Feather, Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
     Animated,
@@ -20,6 +21,7 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ visible, onClose }: SidebarProps) {
+  const router = useRouter();
   const [showModal, setShowModal] = useState(visible);
   const slideAnim = useRef(new Animated.Value(-width)).current;
 
@@ -72,11 +74,16 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
               <MaterialIcons name="verified" size={16} color="#0056D2" />
             </View>
             <Text style={styles.emailText}>alex.rivera@smartnote.ai</Text>
-            <Text style={styles.premiumBadge}>PREMIUM MEMBER</Text>
           </View>
 
           <View style={styles.menuSection}>
-            <TouchableOpacity style={[styles.menuItem, styles.menuItemActive]}>
+            <TouchableOpacity
+              style={[styles.menuItem, styles.menuItemActive]}
+              onPress={() => {
+                onClose();
+                router.push("/(tabs)");
+              }}
+            >
               <Ionicons name="document-text" size={20} color="#0056D2" />
               <Text style={[styles.menuText, styles.menuTextActive]}>
                 All Notes
@@ -93,14 +100,26 @@ export default function Sidebar({ visible, onClose }: SidebarProps) {
               <Text style={styles.menuText}>Archive</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.menuItem}>
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={() => {
+                onClose();
+                router.push("/sampah");
+              }}
+            >
               <Feather name="trash-2" size={20} color="#4A5568" />
               <Text style={styles.menuText}>Trash</Text>
             </TouchableOpacity>
           </View>
 
           <View style={styles.bottomSection}>
-            <TouchableOpacity style={styles.menuItem}>
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={() => {
+                onClose();
+                router.push("/pengaturan");
+              }}
+            >
               <Feather name="settings" size={20} color="#4A5568" />
               <Text style={styles.menuText}>Settings</Text>
             </TouchableOpacity>

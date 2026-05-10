@@ -1,234 +1,249 @@
-import ButtonMain from "@/components/ButtonMain";
-import InputType from "@/components/InputType";
-import { AntDesign, Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { Link, router } from "expo-router";
 import React, { useState } from "react";
 import {
-    KeyboardAvoidingView,
-    Platform,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
-export default function LoginScreen() {
+// Import Reusable Components
+import CustomAlertModal from "../components/CustomAlertModal";
+import PrimaryButton from "../components/PrimaryButton";
+import SocialButton from "../components/SocialButton";
+
+// Regex untuk validasi email
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const router = useRouter();
+  const [isModalVisible, setModalVisible] = useState(false);
+
+  // Cek apakah email valid dan password terisi
+  const isFormValid = emailRegex.test(email.trim()) && password.length > 0;
+
+  const handleSubmit = () => {
+    if (isFormValid) {
+      router.replace("/(drawer)/(tabs)");
+    }
+  };
+
+  const handleGooglePress = () => {
+    setModalVisible(true);
+  };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <>
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.container}
-      >
+        style={styles.flex}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}>
         <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-        >
-          <View style={styles.headerContainer}>
-            <View style={styles.iconContainer}>
-              <Ionicons name="document-text" size={36} color="#0056D2" />
-            </View>
-            <Text style={styles.brandName}>SmartNote</Text>
-            <Text style={styles.subtitle}>
+          contentContainerStyle={styles.container}
+          showsVerticalScrollIndicator={false}>
+          {/* Header Section */}
+          <View style={styles.header}>
+            <Image
+              source={require("../assets/images/Container.png")}
+              style={styles.mainIcon}
+            />
+            <Text style={styles.brand}>SmartNote</Text>
+            <Text style={styles.tagline}>
               Your thoughts, refined and organized.
             </Text>
           </View>
 
+          {/* White Card Section */}
           <View style={styles.card}>
-            <View style={styles.inputGroup}>
+            {/* Email Field (Beda style dengan Signup, jadi gak pakai CustomInput) */}
+            <View style={styles.field}>
               <Text style={styles.label}>Email</Text>
-              <InputType
-                placeholder="Input Your Email"
-                keyboardType="email-address"
-                autoCapitalize="none"
+              <TextInput
                 value={email}
                 onChangeText={setEmail}
+                placeholder="name@company.com"
+                placeholderTextColor="#9ca3af"
+                style={styles.input}
+                keyboardType="email-address"
+                autoCapitalize="none"
               />
             </View>
 
-            <View style={styles.inputGroup}>
-              <View style={styles.passwordHeader}>
+            {/* Password Field */}
+            <View style={styles.field}>
+              <View style={styles.labelRow}>
                 <Text style={styles.label}>Password</Text>
-                <TouchableOpacity>
-                  <Text style={styles.forgotText}>Forgot?</Text>
+                <TouchableOpacity activeOpacity={0.7}>
+                  <Text style={styles.linkInline}>Forgot?</Text>
                 </TouchableOpacity>
               </View>
-              <InputType
-                placeholder="Input Your Password"
-                secureTextEntry
+              <TextInput
                 value={password}
                 onChangeText={setPassword}
+                placeholder="••••••••"
+                placeholderTextColor="#9ca3af"
+                style={styles.input}
+                secureTextEntry
+                autoCapitalize="none"
               />
             </View>
 
-            <TouchableOpacity
-              style={styles.loginButton}
-              onPress={() => router.push("/(tabs)")}
-            >
-              <Text style={styles.loginButtonText}>Login</Text>
-            </TouchableOpacity>
+            {/* Login Button pakai PrimaryButton */}
+            <View style={styles.buttonWrapper}>
+              <PrimaryButton
+                title="Login"
+                onPress={handleSubmit}
+                disabled={!isFormValid}
+              />
+            </View>
 
+            {/* Divider */}
             <View style={styles.dividerContainer}>
-              <View style={styles.line} />
+              <View style={styles.dividerLine} />
               <Text style={styles.dividerText}>OR</Text>
-              <View style={styles.line} />
+              <View style={styles.dividerLine} />
             </View>
 
-            <TouchableOpacity style={styles.googleButton}>
-              <AntDesign
-                name="google"
-                size={20}
-                color="#4285F4"
-                style={styles.googleIcon}
-              />
-              <ButtonMain
-                text="Login with Google"
-                color="#4285F4"
-                textColor="white"
-              />
-            </TouchableOpacity>
+            {/* Google Button pakai SocialButton */}
+            <SocialButton
+              title="Login with Google"
+              onPress={handleGooglePress}
+            />
           </View>
 
-          <View style={styles.footer}>
+          {/* Footer */}
+          <View style={styles.footerContainer}>
             <Text style={styles.footerText}>Don't have an account? </Text>
-            <TouchableOpacity onPress={() => router.push("/")}>
-              <Text style={styles.signupText}>Sign up</Text>
-            </TouchableOpacity>
+            <Link href="/signup" asChild>
+              <TouchableOpacity activeOpacity={0.7}>
+                <Text style={styles.link}>Sign up</Text>
+              </TouchableOpacity>
+            </Link>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+
+      {/* Modal Alert pakai CustomAlertModal */}
+      <CustomAlertModal
+        visible={isModalVisible}
+        onClose={() => setModalVisible(false)}
+        title="Under Maintenance 🛠️"
+        message="Maaf ya, fitur login dengan Google sedang dalam tahap pengembangan. Silakan gunakan form email di atas untuk sementara waktu."
+      />
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
+  flex: {
     flex: 1,
-    backgroundColor: "#F4F7FA",
+    backgroundColor: "#f4f6f9",
   },
   container: {
-    flex: 1,
-  },
-  scrollContent: {
+    flexGrow: 1,
     paddingHorizontal: 24,
-    paddingTop: 50,
-    paddingBottom: 40,
+    paddingTop: 60,
+    paddingBottom: 50,
     alignItems: "center",
   },
-  headerContainer: {
+  header: {
     alignItems: "center",
     marginBottom: 30,
   },
-  iconContainer: {
-    marginBottom: 15,
+  mainIcon: {
+    width: 48,
+    height: 48,
+    resizeMode: "contain",
+    marginBottom: 16,
   },
-  brandName: {
-    fontSize: 28,
+  brand: {
+    fontSize: 32,
     fontWeight: "800",
-    color: "#2D3748",
+    color: "#1f2933",
     marginBottom: 8,
   },
-  subtitle: {
+  tagline: {
     fontSize: 15,
-    color: "#4A5568",
-    textAlign: "center",
+    color: "#64748b",
   },
   card: {
-    backgroundColor: "#FFFFFF",
     width: "100%",
-    borderRadius: 24,
-    padding: 24,
+    backgroundColor: "#fff",
+    borderRadius: 30,
+    paddingHorizontal: 24,
+    paddingVertical: 32,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.03,
-    shadowRadius: 20,
+    shadowOpacity: 0.05,
+    shadowRadius: 15,
     elevation: 4,
-    marginBottom: 40,
+    marginBottom: 30,
   },
-  inputGroup: {
+  field: {
+    gap: 8,
     marginBottom: 20,
   },
-  label: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#2D3748",
-    marginBottom: 8,
-  },
-  passwordHeader: {
+  labelRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 8,
   },
-  forgotText: {
-    fontSize: 13,
+  label: {
+    fontSize: 14,
+    color: "#334155",
     fontWeight: "600",
-    color: "#0056D2",
   },
-  loginButton: {
-    backgroundColor: "#4285F4",
-    borderRadius: 30,
-    paddingVertical: 16,
-    alignItems: "center",
+  input: {
+    backgroundColor: "#f1f5f9",
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    fontSize: 15,
+    color: "#1f2933",
+  },
+  // Wrapper ini buat nyesuain margin tombol karena PrimaryButton udah punya marginBottom bawaan
+  buttonWrapper: {
     marginTop: 10,
-    marginBottom: 25,
-    shadowColor: "#4285F4",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  loginButtonText: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "700",
+    marginBottom: -10,
   },
   dividerContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 25,
+    marginBottom: 24,
   },
-  line: {
+  dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: "#E2E8F0",
+    backgroundColor: "#e2e8f0",
   },
   dividerText: {
-    paddingHorizontal: 15,
+    marginHorizontal: 16,
     fontSize: 12,
-    color: "#A0AEC0",
-    fontWeight: "600",
+    fontWeight: "700",
+    color: "#94a3b8",
   },
-  googleButton: {
+  footerContainer: {
     flexDirection: "row",
-    backgroundColor: "#FFFFFF",
-    borderWidth: 1,
-    borderColor: "#E2E8F0",
-    borderRadius: 30,
-    paddingVertical: 14,
     alignItems: "center",
     justifyContent: "center",
-  },
-  googleIcon: {
-    marginRight: 10,
-  },
-  footer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
   },
   footerText: {
     fontSize: 15,
-    color: "#4A5568",
+    color: "#64748b",
   },
-  signupText: {
+  link: {
     fontSize: 15,
+    color: "#0a58ca",
     fontWeight: "700",
-    color: "#0056D2",
+  },
+  linkInline: {
+    fontSize: 13,
+    color: "#0a58ca",
+    fontWeight: "700",
   },
 });

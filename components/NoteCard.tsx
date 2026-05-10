@@ -1,115 +1,92 @@
-import React from "react";
-import { Image, StyleSheet, Text, View } from "react-native";
+import React from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
-interface NoteCardProps {
-  tag: string;
+// Bikin interface/tipe data buat props
+export interface Note {
+  id: string;
   title: string;
-  description?: string;
+  snippet: string;
+  tag: string;
   date: string;
-  isHighlight?: boolean;
-  imageUrl?: string;
 }
 
-export default function NoteCard({
-  tag,
-  title,
-  description,
-  date,
-  isHighlight,
-  imageUrl,
-}: NoteCardProps) {
+interface NoteCardProps {
+  note: Note;
+  onPress: () => void;
+}
+
+export default function NoteCard({ note, onPress }: NoteCardProps) {
+  // Bikin logic kecil buat bedain style tag (warna biru khusus STRATEGY)
+  const isStrategy = note.tag.toUpperCase() === 'STRATEGY';
+
   return (
-    <View style={styles.card}>
-      {isHighlight ? (
-        <View style={styles.headerHighlight}>
-          <View style={styles.tagHighlight}>
-            <Text style={styles.tagTextHighlight}>{tag}</Text>
-          </View>
-          <Text style={styles.dateText}>{date}</Text>
+    <TouchableOpacity style={styles.card} activeOpacity={0.7} onPress={onPress}>
+      <View style={styles.headerRow}>
+        <View style={[styles.tagContainer, isStrategy && styles.tagContainerBlue]}>
+          <Text style={[styles.tagText, isStrategy && styles.tagTextBlue]}>
+            {note.tag.toUpperCase()}
+          </Text>
         </View>
-      ) : (
-        <Text style={styles.tagText}>{tag}</Text>
-      )}
-
-      <Text style={styles.title}>{title}</Text>
-
-      {description && <Text style={styles.description}>{description}</Text>}
-
-      {imageUrl && (
-        <Image
-          source={{ uri: imageUrl }}
-          style={styles.image}
-          resizeMode="cover"
-        />
-      )}
-
-      {!isHighlight && <Text style={styles.dateTextBottom}>{date}</Text>}
-    </View>
+        <Text style={styles.dateText}>{note.date}</Text>
+      </View>
+      
+      <Text style={styles.title} numberOfLines={1}>{note.title}</Text>
+      <Text style={styles.snippet} numberOfLines={2}>{note.snippet}</Text>
+    </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 20,
+    backgroundColor: '#ffffff',
+    borderRadius: 24,
     padding: 20,
     marginBottom: 16,
-    shadowColor: "#000",
+    // Soft shadow
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.03,
+    shadowOpacity: 0.05,
     shadowRadius: 10,
-    elevation: 2,
+    elevation: 3,
   },
-  headerHighlight: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 12,
   },
-  tagHighlight: {
-    backgroundColor: "#E1EFFF",
-    paddingHorizontal: 12,
+  tagContainer: {
+    backgroundColor: 'transparent',
     paddingVertical: 4,
+    paddingHorizontal: 8,
     borderRadius: 12,
   },
-  tagTextHighlight: {
-    color: "#0056D2",
-    fontSize: 10,
-    fontWeight: "800",
-    letterSpacing: 0.5,
+  tagContainerBlue: {
+    backgroundColor: '#e6efff', // Biru sangat muda
   },
   tagText: {
-    color: "#718096",
     fontSize: 10,
-    fontWeight: "700",
+    fontWeight: '800',
+    color: '#9ca3af',
     letterSpacing: 1,
-    marginBottom: 8,
-    textTransform: "uppercase",
   },
-  title: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#1A202C",
-    marginBottom: 8,
-  },
-  description: {
-    fontSize: 14,
-    color: "#4A5568",
-    lineHeight: 22,
-  },
-  image: {
-    width: "100%",
-    height: 120,
-    borderRadius: 12,
-    marginTop: 12,
+  tagTextBlue: {
+    color: '#2563eb', // Biru tulisan
   },
   dateText: {
     fontSize: 12,
-    color: "#A0AEC0",
+    color: '#6b7280',
+    fontWeight: '500',
   },
-  dateTextBottom: {
-    fontSize: 12,
-    color: "#A0AEC0",
-    marginTop: 16,
+  title: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#1f2933',
+    marginBottom: 8,
+  },
+  snippet: {
+    fontSize: 14,
+    color: '#4b5563',
+    lineHeight: 20,
   },
 });
